@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "legit-crystal",
+	"version": "${version}",
+	"name": "legit-crystal",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/legit-crystal/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.legit.crystal.Legitcrystal"
+		],
+		"client": [
+			"com.legit.crystal.LegitcrystalClient"
+		]
+	},
+	"mixins": [
+		"legit-crystal.mixins.json",
+		{
+			"config": "legit-crystal.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.15.6",
+		"minecraft": "~1.19",
+		"java": ">=17",
+		"fabric": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
