@@ -1,10 +1,8 @@
 package com.legit.crystal.modules;
 
 import com.legit.crystal.keybinds.Keybinds;
-import com.legit.crystal.utils.Utils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +11,6 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -35,7 +32,7 @@ public class CrystalPlace {
     public static KeyBinding placeCrystal;
 
     private static void registerKeyInput() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> placeCrystal(client));
+        ClientTickEvents.END_CLIENT_TICK.register(CrystalPlace::placeCrystal);
     }
 
     private static void placeCrystal(MinecraftClient client) {
@@ -63,6 +60,7 @@ public class CrystalPlace {
                 }
             }
             try {
+                assert client.crosshairTarget != null;
                 Vec3d pos = client.crosshairTarget.getPos();
                 BlockState bState = client.world.getBlockState(new BlockPos(pos));
                 lookingAtObsidian = bState.getBlock().getDefaultState() == Blocks.OBSIDIAN.getDefaultState();
@@ -104,7 +102,7 @@ public class CrystalPlace {
             if (blockHitResult == null ||
                     blockHitResult.isInsideBlock() ||
                     client.player.world.getBlockState(blockHitResult.getBlockPos()).getBlock() == Blocks.AIR ||
-                    blockHitResult.squaredDistanceTo((Entity) client.player) > 13) {
+                    blockHitResult.squaredDistanceTo(client.player) > 13) {
                 return;
             }
             
@@ -116,6 +114,7 @@ public class CrystalPlace {
 
     // Method to change the selected slot of the player
     public static void changeSelectedSlot(MinecraftClient client, int slotIndex) {
+        assert client.player != null;
         // Ensure the slot index is within valid bounds (0-8)
         if (slotIndex < 0 || slotIndex > 8) {
             return; // Or handle the error as per your requirement
