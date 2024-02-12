@@ -1,17 +1,21 @@
 package com.legit.crystal.modules;
 
 import com.legit.crystal.keybinds.Keybinds;
+import com.legit.crystal.utils.Utils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -29,7 +33,7 @@ public class CrystalPlace {
     private static final int OBSIDIAN_STEP = 1;
     private static final int CRYSTAL_STEP = 2;
     private static int initialSlot = 0;
-    public static KeyBinding placeCrystal;
+    public static KeyBinding placeCrystalKey;
 
     private static void registerKeyInput() {
         ClientTickEvents.END_CLIENT_TICK.register(CrystalPlace::placeCrystal);
@@ -43,7 +47,7 @@ public class CrystalPlace {
         int obsidianSlot = -1;
         boolean lookingAtObsidian = false;
 
-        if (placeCrystal.wasPressed() && step == STARTING_STEP) {
+        if (placeCrystalKey.wasPressed() && step == STARTING_STEP) {
             step = OBSIDIAN_STEP;
             initialSlot = client.player.getInventory().selectedSlot;
         }
@@ -52,26 +56,26 @@ public class CrystalPlace {
             PlayerInventory inventory = client.player.getInventory();
             for (int i = 0; i < 9; i++) {
                 ItemStack itemStack = inventory.getStack(i);
-                String itemName = itemStack.getItem().getName().getString();
-                if (Objects.equals(itemName, "Obsidian")) {
+                Item item = itemStack.getItem();
+                if (item == Items.OBSIDIAN) {
                     obsidianSlot = i;
-                } else if (Objects.equals(itemName, "End Crystal")) {
+                } else if (item == Items.END_CRYSTAL) {
                     crystalSlot = i;
                 }
             }
             try {
                 assert client.crosshairTarget != null;
-                Vec3d pos = client.crosshairTarget.getPos();
-                BlockState bState = client.world.getBlockState(new BlockPos(pos));
-                lookingAtObsidian = bState.getBlock().getDefaultState() == Blocks.OBSIDIAN.getDefaultState();
+                BlockHitResult result = (BlockHitResult) client.crosshairTarget;
+                Block targetedBlock = client.world.getBlockState(result.getBlockPos()).getBlock();
+                lookingAtObsidian = targetedBlock.equals(Blocks.OBSIDIAN);
             } catch (Exception ignored) {}
 
             if (lookingAtObsidian && step == OBSIDIAN_STEP) {
                 step = CRYSTAL_STEP;
             }
+
+
         }
-
-
 
         // place obsidian 1 tick, place crystal the next
         if (step == OBSIDIAN_STEP && obsidianSlot != -1) {
@@ -99,18 +103,20 @@ public class CrystalPlace {
             return;
         try {
             BlockHitResult blockHitResult = (BlockHitResult) client.crosshairTarget;
-            if (blockHitResult == null ||
-                    blockHitResult.isInsideBlock() ||
-                    client.player.world.getBlockState(blockHitResult.getBlockPos()).getBlock() == Blocks.AIR ||
-                    blockHitResult.squaredDistanceTo(client.player) > 13) {
-                return;
-            }
+            if (blockHitResult == null) return;
+            if (!isValidPlacement(blockHitResult, client)) return;
             
             client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, blockHitResult);
         } catch (Exception ignored) {}
 
     }
 
+    private static boolean isValidPlacement(BlockHitResult blockHitResult, MinecraftClient client) {
+        Block block = client.player.world.getBlockState(blockHitResult.getBlockPos()).getBlock();
+        return !blockHitResult.isInsideBlock() &&
+                blockHitResult.squaredDistanceTo(client.player) <= 14 &&
+                block != Blocks.AIR;
+    }
 
     // Method to change the selected slot of the player
     public static void changeSelectedSlot(MinecraftClient client, int slotIndex) {
@@ -128,14 +134,17 @@ public class CrystalPlace {
     }
 
     public static void registerModule() {
-        placeCrystal = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        registerKeyBinding();
+        registerKeyInput();
+    }
+
+    private static void registerKeyBinding() {
+        placeCrystalKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 KEY_HIT_CRYSTAL,
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_R,
                 Keybinds.CRYSTAL_PVP_CATEGORY
         ));
-
-        registerKeyInput();
     }
 
 }

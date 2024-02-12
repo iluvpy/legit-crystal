@@ -18,4 +18,10 @@ public class Utils {
         if (player != null)
             player.sendMessage(Text.of(str), true);
     }
+    public static void sendSystemMsg(String str) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        ClientPlayerEntity player = mc.player;
+        if (player != null)
+            player.sendMessage(Text.of(str));
+    }
 }
