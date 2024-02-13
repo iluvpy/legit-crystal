@@ -2,6 +2,8 @@ package com.legit.crystal.rendering;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Matrix4f;
@@ -17,6 +19,9 @@ public class GUIRenderer {
             Matrix4f positionMatrix = drawContext.peek().getPositionMatrix();
             Tessellator tessellator = Tessellator.getInstance();
             BufferBuilder buffer = tessellator.getBuffer();
+            TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+            textRenderer.draw(drawContext, "hello world!", 0.0f, 0.0f, 0xFFFFFF);
+
 /*
             buffer.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR_TEXTURE);
             buffer.vertex(positionMatrix, 20, 20, 0).color(1f, 1f, 1f, 1f).texture(0f, 0f).next();
