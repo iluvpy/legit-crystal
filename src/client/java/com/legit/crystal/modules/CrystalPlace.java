@@ -2,12 +2,9 @@ package com.legit.crystal.modules;
 
 import com.legit.crystal.keybinds.ModuleKeybind;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,9 +14,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import org.lwjgl.glfw.GLFW;
 
 public class CrystalPlace {
-
-
-    public static final String KEY_HIT_CRYSTAL = "key.legit-crystal.CrystalPlace";
 
     private static final int STARTING_STEP = 0;
     private static int step = STARTING_STEP;
@@ -106,6 +100,7 @@ public class CrystalPlace {
     }
 
     private static boolean isValidPlacement(BlockHitResult blockHitResult, MinecraftClient client) {
+        assert client.player != null;
         Block block = client.player.world.getBlockState(blockHitResult.getBlockPos()).getBlock();
         return !blockHitResult.isInsideBlock() &&
                 blockHitResult.squaredDistanceTo(client.player) <= 14 &&

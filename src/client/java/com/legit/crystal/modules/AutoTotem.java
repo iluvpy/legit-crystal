@@ -3,11 +3,8 @@ package com.legit.crystal.modules;
 import com.legit.crystal.keybinds.ModuleKeybind;
 import com.legit.crystal.utils.Utils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -17,15 +14,13 @@ import org.lwjgl.glfw.GLFW;
 public class AutoTotem {
     public static boolean moduleActive = false;
 
-    private static ModuleKeybind autoTotemKey;
-
     public static void registerModule() {
         registerKeyBinding();
         registerTickEvents();
     }
 
     private static void registerKeyBinding() {
-        autoTotemKey = new ModuleKeybind("key.legit-crystal.AutoTotem", GLFW.GLFW_KEY_I);
+        ModuleKeybind autoTotemKey = new ModuleKeybind("key.legit-crystal.AutoTotem", GLFW.GLFW_KEY_I);
         autoTotemKey.onWasPressed(client -> {
             moduleActive = !moduleActive;
             Utils.sendClientMsg("module " + "Auto Totem " + (moduleActive ? "enabled" : "disabled"));
@@ -79,6 +74,7 @@ public class AutoTotem {
     }
 
     private static PlayerInventory getInventory(MinecraftClient client) {
+        assert client.player != null;
         return client.player.getInventory();
     }
 
