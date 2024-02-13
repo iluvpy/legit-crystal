@@ -1,6 +1,6 @@
 package com.legit.crystal.modules;
 
-import com.legit.crystal.keybinds.Keybinds;
+import com.legit.crystal.keybinds.ModuleKeybind;
 import com.legit.crystal.utils.Utils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -17,8 +17,7 @@ import org.lwjgl.glfw.GLFW;
 public class AutoTotem {
     public static boolean moduleActive = false;
 
-    private static KeyBinding autoTotemKey;
-    private static String KEY_AUTO_TOTEM = "key.legit-crystal.AutoTotem";
+    private static ModuleKeybind autoTotemKey;
 
     public static void registerModule() {
         registerKeyBinding();
@@ -26,21 +25,17 @@ public class AutoTotem {
     }
 
     private static void registerKeyBinding() {
-        autoTotemKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                KEY_AUTO_TOTEM,
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_I,
-                Keybinds.CRYSTAL_PVP_CATEGORY
-        ));
+        autoTotemKey = new ModuleKeybind("key.legit-crystal.AutoTotem", GLFW.GLFW_KEY_I);
+        autoTotemKey.onWasPressed(client -> {
+            moduleActive = !moduleActive;
+            Utils.sendClientMsg("module " + "Auto Totem " + (moduleActive ? "enabled" : "disabled"));
+        });
     }
 
     private static void registerTickEvents() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
 
-            if (autoTotemKey.wasPressed()) {
-                moduleActive = !moduleActive;
-                Utils.sendClientMsg("module " + "Auto Totem " + (moduleActive ? "enabled" : "disabled"));
-            }
+
 
             if (client.player != null && moduleActive) {
                 if (!totemInOffHand(client)) {

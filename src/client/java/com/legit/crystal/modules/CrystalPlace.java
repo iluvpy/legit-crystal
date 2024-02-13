@@ -1,11 +1,9 @@
 package com.legit.crystal.modules;
 
-import com.legit.crystal.keybinds.Keybinds;
-import com.legit.crystal.utils.Utils;
+import com.legit.crystal.keybinds.ModuleKeybind;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
@@ -15,13 +13,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Util;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.Objects;
 
 public class CrystalPlace {
 
@@ -33,7 +26,7 @@ public class CrystalPlace {
     private static final int OBSIDIAN_STEP = 1;
     private static final int CRYSTAL_STEP = 2;
     private static int initialSlot = 0;
-    public static KeyBinding placeCrystalKey;
+    public static ModuleKeybind placeCrystalKey;
 
     private static void registerKeyInput() {
         ClientTickEvents.END_CLIENT_TICK.register(CrystalPlace::placeCrystal);
@@ -102,6 +95,7 @@ public class CrystalPlace {
         if (client.player == null || client.interactionManager == null)
             return;
         try {
+
             BlockHitResult blockHitResult = (BlockHitResult) client.crosshairTarget;
             if (blockHitResult == null) return;
             if (!isValidPlacement(blockHitResult, client)) return;
@@ -139,12 +133,7 @@ public class CrystalPlace {
     }
 
     private static void registerKeyBinding() {
-        placeCrystalKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                KEY_HIT_CRYSTAL,
-                InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_R,
-                Keybinds.CRYSTAL_PVP_CATEGORY
-        ));
+        placeCrystalKey = new ModuleKeybind("key.legit-crystal.CrystalPlace", GLFW.GLFW_KEY_R);
     }
 
 }
