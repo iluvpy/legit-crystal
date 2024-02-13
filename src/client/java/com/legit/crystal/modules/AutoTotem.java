@@ -15,6 +15,7 @@ public class AutoTotem {
     public static boolean moduleActive = false;
 
     public static void registerModule() {
+        Modules.addModule("Auto Totem", () -> {return moduleActive;});
         registerKeyBinding();
         registerTickEvents();
     }

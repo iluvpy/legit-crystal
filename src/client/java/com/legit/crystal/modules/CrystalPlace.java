@@ -123,6 +123,7 @@ public class CrystalPlace {
     }
 
     public static void registerModule() {
+        Modules.addModule("Crystal Place", () -> {return false;});
         registerKeyBinding();
         registerKeyInput();
     }
