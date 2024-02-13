@@ -1,2 +1,2 @@
 # legit-crystal
-crystal pvp mod
+Lightweight crystal pvp client
