@@ -4,6 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class Utils {
     public static void sendChatMessage(String str) {
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -23,5 +25,9 @@ public class Utils {
         ClientPlayerEntity player = mc.player;
         if (player != null)
             player.sendMessage(Text.of(str));
+    }
+
+    public static int getRandInt(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 }

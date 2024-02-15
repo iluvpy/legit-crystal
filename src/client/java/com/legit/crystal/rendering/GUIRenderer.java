@@ -24,7 +24,7 @@ public class GUIRenderer {
     private static boolean GUIopen = true;
     private static  ModuleKeybind GUIKeybind;
     public static void register() {
-        GUIKeybind = new ModuleKeybind("OpenCloseGUI", GLFW.GLFW_KEY_RIGHT_SHIFT);
+        GUIKeybind = new ModuleKeybind("key.legit-crystal.OpenCloseGUI", GLFW.GLFW_KEY_RIGHT_SHIFT);
         GUIKeybind.onWasPressed(client -> {GUIopen = !GUIopen;
             Utils.sendSystemMsg("GUIopen: " + GUIopen);});
 

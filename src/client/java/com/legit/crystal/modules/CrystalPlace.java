@@ -1,6 +1,7 @@
 package com.legit.crystal.modules;
 
 import com.legit.crystal.keybinds.ModuleKeybind;
+import com.legit.crystal.utils.Utils;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -9,8 +10,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import org.lwjgl.glfw.GLFW;
 
 public class CrystalPlace {
@@ -20,6 +24,9 @@ public class CrystalPlace {
     private static final int OBSIDIAN_STEP = 1;
     private static final int CRYSTAL_STEP = 2;
     private static int initialSlot = 0;
+    private static long lastPlace = 0;
+    private static boolean didPlace = false;
+    private static int lastPlaceRandomDelay = 0;
     public static ModuleKeybind placeCrystalKey;
 
     private static void registerKeyInput() {
@@ -67,15 +74,22 @@ public class CrystalPlace {
         // place obsidian 1 tick, place crystal the next
         if (step == OBSIDIAN_STEP && obsidianSlot != -1) {
             changeSelectedSlot(client, obsidianSlot);
-            placeBlock(client);
+            if (placeDelayPassed()) {
+                placeBlock(client);
+            }
+
+
         }
         if (step == CRYSTAL_STEP && crystalSlot != -1) {
             changeSelectedSlot(client, crystalSlot);
-            placeBlock(client);
+            if (placeDelayPassed()) {
+                placeBlock(client);
+            }
         }
 
-        if (step != STARTING_STEP) {
+        if (step != STARTING_STEP && didPlace) {
             step++;
+            didPlace = false;
             if (step > CRYSTAL_STEP) {
                 step = STARTING_STEP;
                 changeSelectedSlot(client, initialSlot);
@@ -83,6 +97,15 @@ public class CrystalPlace {
             }
         }
 
+    }
+
+    private static boolean isValidPlacement(BlockHitResult blockHitResult, MinecraftClient client) {
+        assert client.player != null;
+        assert client.world != null;
+        Block block = client.world.getBlockState(blockHitResult.getBlockPos()).getBlock();
+        return !blockHitResult.isInsideBlock() &&
+                blockHitResult.squaredDistanceTo(client.player) <= 17 &&
+                block != Blocks.AIR;
     }
 
     private static void placeBlock(MinecraftClient client) {
@@ -93,18 +116,16 @@ public class CrystalPlace {
             BlockHitResult blockHitResult = (BlockHitResult) client.crosshairTarget;
             if (blockHitResult == null) return;
             if (!isValidPlacement(blockHitResult, client)) return;
-            
-            client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, blockHitResult);
-        } catch (Exception ignored) {}
 
+            client.interactionManager.interactBlock(client.player, Hand.MAIN_HAND, blockHitResult);
+            didPlace = true;
+            lastPlace = System.currentTimeMillis();
+            lastPlaceRandomDelay = Utils.getRandInt(0, 50); // delay to seem more legit
+        } catch (Exception ignored) { }
     }
 
-    private static boolean isValidPlacement(BlockHitResult blockHitResult, MinecraftClient client) {
-        assert client.player != null;
-        Block block = client.player.world.getBlockState(blockHitResult.getBlockPos()).getBlock();
-        return !blockHitResult.isInsideBlock() &&
-                blockHitResult.squaredDistanceTo(client.player) <= 14 &&
-                block != Blocks.AIR;
+    public static boolean placeDelayPassed() {
+        return System.currentTimeMillis() - lastPlace > lastPlaceRandomDelay;
     }
 
     // Method to change the selected slot of the player
@@ -123,7 +144,7 @@ public class CrystalPlace {
     }
 
     public static void registerModule() {
-        Modules.addModule("Crystal Place", () -> {return false;});
+        Modules.addModule("Crystal Place", () -> true);
         registerKeyBinding();
         registerKeyInput();
     }
